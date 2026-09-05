@@ -1,5 +1,6 @@
 # idempotent-kv: Zero-Copy In-Place KV-Cache Compaction for LLMs
 
+[![arXiv](https://img.shields.io/badge/arXiv-submit%2F8040445-b31b1b.svg)](https://arxiv.org)
 [![vLLM RFC](https://img.shields.io/badge/vLLM%20RFC-%2355463-green.svg)](https://github.com/vllm-project/vllm/issues/55463)
 [![Paper](https://img.shields.io/badge/Research%20Paper-PDF-red.svg)](paper/idempotent_kv_cache_paper.pdf)
 [![PyPI](https://img.shields.io/pypi/v/idempotent-kv.svg)](https://pypi.org/project/idempotent-kv/)
