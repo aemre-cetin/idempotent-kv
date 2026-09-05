@@ -1,5 +1,7 @@
 # idempotent-kv: Zero-Copy In-Place KV-Cache Compaction for LLMs
 
+[![Paper](https://img.shields.io/badge/Research%20Paper-PDF-red.svg)](paper/idempotent_kv_cache_paper.pdf)
+[![PyPI](https://img.shields.io/pypi/v/idempotent-kv.svg)](https://pypi.org/project/idempotent-kv/)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending%20(US%2064%2F148%2C668)-blue.svg)](https://uspto.gov)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Hardware](https://img.shields.io/badge/Tested%20on-NVIDIA%20Blackwell%20sm__120-purple.svg)]()
@@ -113,6 +115,7 @@ Academic evaluation, non-commercial research, and open-source collaboration are 
 ---
 
 ## 📜 Academic Citation
+The full research paper is available directly in this repository: [`paper/idempotent_kv_cache_paper.pdf`](paper/idempotent_kv_cache_paper.pdf).
 
 ```bibtex
 @article{cetin2026idempotentkv,
