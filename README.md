@@ -46,8 +46,8 @@ However, standard deep learning runtimes execute compaction using out-of-place g
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/emrecetin/idempotent-permutations.git
-cd idempotent-permutations/packages/idempotent-kv
+git clone https://github.com/aemre-cetin/idempotent-kv.git
+cd idempotent-kv
 pip install -e .
 ```
 

@@ -34,9 +34,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/emrecetin/idempotent-permutations"
-Repository = "https://github.com/emrecetin/idempotent-permutations"
-Documentation = "https://github.com/emrecetin/idempotent-permutations/tree/main/packages/idempotent-kv"
+Homepage = "https://github.com/aemre-cetin/idempotent-kv"
+Repository = "https://github.com/aemre-cetin/idempotent-kv"
+Documentation = "https://github.com/aemre-cetin/idempotent-kv#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]
