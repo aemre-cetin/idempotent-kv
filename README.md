@@ -1,5 +1,6 @@
 # idempotent-kv: Zero-Copy In-Place KV-Cache Compaction for LLMs
 
+[![vLLM RFC](https://img.shields.io/badge/vLLM%20RFC-%2355463-green.svg)](https://github.com/vllm-project/vllm/issues/55463)
 [![Paper](https://img.shields.io/badge/Research%20Paper-PDF-red.svg)](paper/idempotent_kv_cache_paper.pdf)
 [![PyPI](https://img.shields.io/pypi/v/idempotent-kv.svg)](https://pypi.org/project/idempotent-kv/)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending%20(US%2064%2F148%2C668)-blue.svg)](https://uspto.gov)
@@ -99,6 +100,8 @@ compacted_k, compacted_v = compaction_hook(
 )
 ```
 
+> 🚀 **Official vLLM Upstreaming Proposal:** Track the community RFC and upstreaming discussion at [vLLM Issue #55463](https://github.com/vllm-project/vllm/issues/55463).
+
 ---
 
 ## 🛡️ Patent & Intellectual Property Notice
@@ -115,7 +118,6 @@ Academic evaluation, non-commercial research, and open-source collaboration are 
 ---
 
 ## 📜 Academic Citation
-The full research paper is available directly in this repository: [`paper/idempotent_kv_cache_paper.pdf`](paper/idempotent_kv_cache_paper.pdf).
 
 ```bibtex
 @article{cetin2026idempotentkv,
@@ -140,4 +142,3 @@ The full research paper is available directly in this repository: [`paper/idempo
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
 Copyright © 2026 Dr. A. Emre ÇETİN. All Rights Reserved.
-
