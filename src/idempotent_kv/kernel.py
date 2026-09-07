@@ -106,27 +106,42 @@ def compact_kv_cache_inplace(
     value_cache: torch.Tensor,
     target_map: torch.Tensor,
     compacted_capacity: int,
-    num_warps: int = 4
+    num_warps: int = 4,
+    prefer_native: bool = True
 ):
     """
-    Executes in-place zero-copy KV cache compaction on GPU tensors.
+    Executes in-place zero-copy KV cache compaction on GPU/CPU tensors.
+    Dispatches to native C++20 / Blackwell CUDA engine (idempotent-core) or Triton JIT.
     
     Args:
-        key_cache: [B, H, N, D] float16 or bfloat16 contiguous tensor
-        value_cache: [B, H, N, D] float16 or bfloat16 contiguous tensor
+        key_cache: [B, H, N, D] float16, bfloat16, or float32 contiguous tensor
+        value_cache: [B, H, N, D] float16, bfloat16, or float32 contiguous tensor
         target_map: [B, H, N] int32 permutation map
         compacted_capacity: number of retained context slots
-        num_warps: Triton execution warps per block
+        num_warps: Triton execution warps per block (when using Triton)
+        prefer_native: whether to prefer native C++20 / CUDA engine
     
     Returns:
         (compacted_key, compacted_value) sliced directly as [B, H, :capacity, D]
     """
     assert key_cache.is_contiguous() and value_cache.is_contiguous(), "Key and Value caches must be contiguous"
     assert target_map.is_contiguous(), "Target map must be contiguous"
-    
-    batch_size, num_heads, seq_len, head_dim = key_cache.shape
-    grid = (batch_size, num_heads)
 
+    batch_size, num_heads, seq_len, head_dim = key_cache.shape
+
+    if prefer_native:
+        try:
+            import idempotent_core
+            k_flat = key_cache.view(batch_size * num_heads, seq_len, head_dim)
+            v_flat = value_cache.view(batch_size * num_heads, seq_len, head_dim)
+            m_flat = target_map.view(batch_size * num_heads, seq_len)
+            idempotent_core.compact_inplace(k_flat, m_flat)
+            idempotent_core.compact_inplace(v_flat, m_flat)
+            return key_cache[:, :, :compacted_capacity, :], value_cache[:, :, :compacted_capacity, :]
+        except Exception:
+            pass
+
+    grid = (batch_size, num_heads)
     _inplace_kv_compact_opt_kernel[grid](
         key_cache, value_cache, target_map,
         key_cache.stride(0), key_cache.stride(1), key_cache.stride(2), key_cache.stride(3),
