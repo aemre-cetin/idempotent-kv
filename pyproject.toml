@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "idempotent-kv"
-version = "0.2.0"
+version = "0.2.1"
 description = "Zero-Copy In-Place KV-Cache Compactor for vLLM & Deep Learning Accelerators"
 readme = "README.md"
 license = { text = "Apache-2.0" }
