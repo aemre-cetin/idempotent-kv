@@ -4,10 +4,11 @@
 [![vLLM RFC](https://img.shields.io/badge/vLLM%20RFC-%2355463-green.svg)](https://github.com/vllm-project/vllm/issues/55463)
 [![Paper](https://img.shields.io/badge/Research%20Paper-PDF-red.svg)](paper/idempotent_kv_cache_paper.pdf)
 [![PyPI](https://img.shields.io/pypi/v/idempotent-kv.svg)](https://pypi.org/project/idempotent-kv/)
-[![Patent Pending](https://img.shields.io/badge/Patent-Pending%20(US%2064%2F148%2C668)-blue.svg)](https://uspto.gov)
+[![Patent Pending](https://img.shields.io/badge/Patent-Pending%20(US%2064%2F148%2C679)-blue.svg)](https://uspto.gov)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Hardware](https://img.shields.io/badge/Tested%20on-NVIDIA%20Blackwell%20sm__120-purple.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)]()
+[![Commercialization Strategy](https://img.shields.io/badge/commercialization-strategy-gold.svg)](./commercialization.md)
 
 > **Eliminate 100% of auxiliary VRAM allocations during KV-cache context eviction in vLLM, SGLang, and Hugging Face inference engines.**
 
@@ -126,7 +127,7 @@ Academic evaluation, non-commercial research, and open-source collaboration are 
   author={Cetin, A. Emre},
   journal={arXiv preprint},
   year={2026},
-  note={U.S. Patent Application No. 64/148,668}
+  note={U.S. Patent Application No. 64/148,679 (Confirmation No. 4824)}
 }
 
 @article{cetin2013idempotent,
@@ -143,3 +144,18 @@ Academic evaluation, non-commercial research, and open-source collaboration are 
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
 Copyright © 2026 Dr. A. Emre ÇETİN. All Rights Reserved.
+
+---
+
+## 📄 Scientific Publication
+
+The theoretical foundations, mathematical proofs, and hardware benchmarks on NVIDIA Blackwell (`sm_120`) are published in:
+* **Research Paper:** [`idempotent_kv_cache_paper.pdf`](paper/idempotent_kv_cache_paper.pdf)
+* **Patent Application:** Protected under U.S. Patent Application No.: `64/148,679` (*Confirmation No. 4824*, claiming priority under 35 U.S.C. § 119(e) to `64/148,668`).
+* **Inventor:** Dr. A. Emre ÇETİN (`aemre.cetin@gmail.com`).
+
+---
+
+## 💼 Commercialization & Enterprise Licensing
+
+Institutional investor pitch, enterprise ROI analysis, TAM/SAM/SOM market sizing, and multi-year commercialization roadmap are detailed in [commercialization.md](./commercialization.md).
