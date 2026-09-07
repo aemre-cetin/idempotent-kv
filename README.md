@@ -4,13 +4,15 @@
 [![vLLM RFC](https://img.shields.io/badge/vLLM%20RFC-%2355463-green.svg)](https://github.com/vllm-project/vllm/issues/55463)
 [![Paper](https://img.shields.io/badge/Research%20Paper-PDF-red.svg)](paper/idempotent_kv_cache_paper.pdf)
 [![PyPI](https://img.shields.io/pypi/v/idempotent-kv.svg)](https://pypi.org/project/idempotent-kv/)
+[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/aecetin/idempotent-ai-showcase)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending%20(US%2064%2F148%2C679)-blue.svg)](https://uspto.gov)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Hardware](https://img.shields.io/badge/Tested%20on-NVIDIA%20Blackwell%20sm__120-purple.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)]()
 [![Commercialization Strategy](https://img.shields.io/badge/commercialization-strategy-gold.svg)](./commercialization.md)
 
-> **Eliminate 100% of auxiliary VRAM allocations during KV-cache context eviction in vLLM, SGLang, and Hugging Face inference engines.**
+> **Eliminate 100% of auxiliary VRAM allocations during KV-cache context eviction in vLLM, SGLang, and Hugging Face inference engines.**  
+> 🌟 **Interactive Live Showcase:** [huggingface.co/spaces/aecetin/idempotent-ai-showcase](https://huggingface.co/spaces/aecetin/idempotent-ai-showcase)
 
 ---
 
