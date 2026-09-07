@@ -11,10 +11,13 @@ __patent__ = "U.S. Patent Application No. 64/148,668 (Patent Pending)"
 
 from .kernel import compact_kv_cache_inplace
 from .compactor import InplaceKVCompactor
+from .integrations import VLLMInplaceCompactionHook, SGLangInplaceCompactionHook
 
 __all__ = [
     "compact_kv_cache_inplace",
     "InplaceKVCompactor",
+    "VLLMInplaceCompactionHook",
+    "SGLangInplaceCompactionHook",
     "__version__",
-    "__patent__"
+    "__patent__",
 ]
