@@ -15,7 +15,7 @@
   `cs.AI` (Artificial Intelligence), `cs.LG` (Machine Learning), `cs.AR` (Hardware Architecture)
 
 - **Comments:**
-  4 pages, 3 figures. Reference implementation and Triton kernels available at https://github.com/aemre-cetin/idempotent-kv. Protected under U.S. Patent Application No. 64/148,668.
+  4 pages, 3 figures. Reference implementation and Triton kernels available at https://github.com/aemre-cetin/idem-kv. Protected under U.S. Patent Application No. 64/148,668.
 
 - **ACM Classification:**
   B.3.2; C.1.4; I.2.7
@@ -49,6 +49,6 @@ The serving of autoregressive Large Language Models (LLMs) is severely constrain
   U.S. Patent Application No. 64/148,668 ("Patent Pending", Confirmation No. 5890).
 
 - **Associated Links:**
-  - GitHub Repository: https://github.com/aemre-cetin/idempotent-kv
+  - GitHub Repository: https://github.com/aemre-cetin/idem-kv
   - PyPI Package: https://pypi.org/project/idempotent-kv/
   - vLLM Integration RFC: https://github.com/vllm-project/vllm/issues/55463

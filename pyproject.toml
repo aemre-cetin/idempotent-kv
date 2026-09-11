@@ -33,9 +33,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/aemre-cetin/idempotent-kv"
-Repository = "https://github.com/aemre-cetin/idempotent-kv"
-Documentation = "https://github.com/aemre-cetin/idempotent-kv#readme"
+Homepage = "https://github.com/aemre-cetin/idem-kv"
+Repository = "https://github.com/aemre-cetin/idem-kv"
+Documentation = "https://github.com/aemre-cetin/idem-kv#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]

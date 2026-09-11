@@ -1,18 +1,55 @@
 import torch
-import triton
-import triton.language as tl
 
+try:
+    import triton
+    import triton.language as tl
+    HAS_TRITON = True
+except (ImportError, ModuleNotFoundError):
+    HAS_TRITON = False
+    class _DummyKernel:
+        def __init__(self, fn):
+            self.fn = fn
+        def __getitem__(self, grid):
+            return self
+        def __call__(self, *args, **kwargs):
+            return None
+
+    class _DummyTriton:
+        @staticmethod
+        def jit(fn=None, **kwargs):
+            if fn is None:
+                return lambda f: _DummyKernel(f)
+            return _DummyKernel(fn)
+        @staticmethod
+        def cdiv(a, b):
+            return (a + b - 1) // b
+    triton = _DummyTriton()
+    class _DummyTL:
+        constexpr = int
+        @staticmethod
+        def program_id(dim):
+            return 0
+        @staticmethod
+        def arange(start, end):
+            return []
+        @staticmethod
+        def load(ptr):
+            return 0
+        @staticmethod
+        def store(ptr, val):
+            pass
+    tl = _DummyTL()
 @triton.jit
 def _inplace_kv_compact_opt_kernel(
-    K_ptr,                 # [B, H, N, D]
-    V_ptr,                 # [B, H, N, D]
-    TargetMap_ptr,         # [B, H, N]
-    stride_kb, stride_kh, stride_kn, stride_kd,
-    stride_vb, stride_vh, stride_vn, stride_vd,
-    stride_mb, stride_mh, stride_mn,
-    N: tl.constexpr,       # e.g. 8192, 32768
-    HEAD_DIM: tl.constexpr # e.g. 128
-):
+        K_ptr,                 # [B, H, N, D]
+        V_ptr,                 # [B, H, N, D]
+        TargetMap_ptr,         # [B, H, N]
+        stride_kb, stride_kh, stride_kn, stride_kd,
+        stride_vb, stride_vh, stride_vn, stride_vd,
+        stride_mb, stride_mh, stride_mn,
+        N: tl.constexpr,       # e.g. 8192, 32768
+        HEAD_DIM: tl.constexpr # e.g. 128
+    ):
     pid_batch = tl.program_id(0)
     pid_head = tl.program_id(1)
 
@@ -141,14 +178,32 @@ def compact_kv_cache_inplace(
         except Exception:
             pass
 
-    grid = (batch_size, num_heads)
-    _inplace_kv_compact_opt_kernel[grid](
-        key_cache, value_cache, target_map,
-        key_cache.stride(0), key_cache.stride(1), key_cache.stride(2), key_cache.stride(3),
-        value_cache.stride(0), value_cache.stride(1), value_cache.stride(2), value_cache.stride(3),
-        target_map.stride(0), target_map.stride(1), target_map.stride(2),
-        N=seq_len,
-        HEAD_DIM=head_dim,
-        num_warps=num_warps
-    )
+    if HAS_TRITON and key_cache.is_cuda and _inplace_kv_compact_opt_kernel is not None:
+        grid = (batch_size, num_heads)
+        _inplace_kv_compact_opt_kernel[grid](
+            key_cache, value_cache, target_map,
+            key_cache.stride(0), key_cache.stride(1), key_cache.stride(2), key_cache.stride(3),
+            value_cache.stride(0), value_cache.stride(1), value_cache.stride(2), value_cache.stride(3),
+            target_map.stride(0), target_map.stride(1), target_map.stride(2),
+            N=seq_len,
+            HEAD_DIM=head_dim,
+            num_warps=num_warps
+        )
+        return key_cache[:, :, :compacted_capacity, :], value_cache[:, :, :compacted_capacity, :]
+
+    # Pure PyTorch in-situ fallback (for CPU, macOS MPS, or platforms without Triton/native core)
+    t_map = target_map.view(batch_size, num_heads, seq_len)
+    for b in range(batch_size):
+        for h in range(num_heads):
+            for i in range(seq_len):
+                dest = int(t_map[b, h, i].item())
+                if dest > i and int(t_map[b, h, dest].item()) == i:
+                    tmp_k = key_cache[b, h, i].clone()
+                    key_cache[b, h, i] = key_cache[b, h, dest]
+                    key_cache[b, h, dest] = tmp_k
+
+                    tmp_v = value_cache[b, h, i].clone()
+                    value_cache[b, h, i] = value_cache[b, h, dest]
+                    value_cache[b, h, dest] = tmp_v
+
     return key_cache[:, :, :compacted_capacity, :], value_cache[:, :, :compacted_capacity, :]

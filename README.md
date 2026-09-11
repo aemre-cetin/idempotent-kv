@@ -53,7 +53,7 @@ However, standard deep learning runtimes execute compaction using out-of-place g
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/aemre-cetin/idempotent-kv.git
+git clone https://github.com/aemre-cetin/idem-kv.git
 cd idempotent-kv
 pip install -e .
 ```
