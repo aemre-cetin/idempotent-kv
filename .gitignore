@@ -66,3 +66,13 @@ venv.bak/
 *~
 .DS_Store
 Thumbs.db
+
+# Patent documents and sensitive filing materials
+patent/
+**/patent/
+*.docx
+*dekont*
+*makbuz*
+*fatura*
+*receipt*
+*payment*
