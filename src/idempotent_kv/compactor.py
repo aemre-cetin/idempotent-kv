@@ -1,6 +1,16 @@
+from enum import Enum
+from typing import Tuple, Optional, Union, Dict, Any, List
 import torch
-from typing import Tuple, Optional
 from .kernel import compact_kv_cache_inplace
+from .tarski_state import TarskiStateCompactor
+
+
+class ContextType(str, Enum):
+    KV_CACHE = "kv_cache"
+    SSM_STATE = "ssm_state"
+    HYBRID = "hybrid"
+    UNKNOWN = "unknown"
+
 
 class InplaceKVCompactor:
     """
@@ -99,3 +109,108 @@ class InplaceKVCompactor:
 
         target_map = self.build_idempotent_map(batch, heads, seq_len, active_indices, capacity, device)
         return self.compact(key_cache, value_cache, target_map, capacity)
+
+
+class AutoContextEngine:
+    """
+    Universal Automated Context & Memory Engine for idempotent-kv.
+    Automatically detects memory format (Transformer Key-Value Cache, SSM/Mamba Hidden State, or Hybrid)
+    and executes appropriate O(1) in-situ compaction / drift stabilization.
+    """
+    def __init__(
+        self,
+        kv_capacity: int = 512,
+        tarski_max_radius: float = 8.0,
+        num_warps: int = 4
+    ):
+        self.kv_compactor = InplaceKVCompactor(num_warps=num_warps)
+        self.tarski_compactor = TarskiStateCompactor(max_radius=tarski_max_radius)
+        self.kv_capacity = kv_capacity
+
+    @staticmethod
+    def detect_context_type(context: Any) -> ContextType:
+        """
+        Detects whether context is Transformer KV cache or SSM recurrent hidden state.
+        """
+        if context is None:
+            return ContextType.UNKNOWN
+
+        # 1. HuggingFace / standard KV tuple or list of (K, V)
+        if isinstance(context, (tuple, list)):
+            if len(context) > 0:
+                first_elem = context[0]
+                if isinstance(first_elem, (tuple, list)) and len(first_elem) == 2:
+                    return ContextType.KV_CACHE
+                elif isinstance(first_elem, torch.Tensor) and first_elem.dim() >= 3:
+                    # Could be list of SSM states per layer
+                    return ContextType.SSM_STATE
+            return ContextType.KV_CACHE
+
+        # 2. Direct Tensor: SSM state [B, D, N] or [B, N]
+        if isinstance(context, torch.Tensor):
+            return ContextType.SSM_STATE
+
+        # 3. Dict containing both or custom cache
+        if isinstance(context, dict):
+            has_kv = "past_key_values" in context or "key_cache" in context
+            has_ssm = "ssm_state" in context or "hidden_state" in context
+            if has_kv and has_ssm:
+                return ContextType.HYBRID
+            elif has_ssm:
+                return ContextType.SSM_STATE
+            elif has_kv:
+                return ContextType.KV_CACHE
+
+        return ContextType.UNKNOWN
+
+    def compact(
+        self,
+        context: Any,
+        attention_scores: Optional[torch.Tensor] = None,
+        capacity: Optional[int] = None,
+        target_type: Optional[str] = None
+    ) -> Any:
+        """
+        Automatically routes and executes compaction according to detected context type.
+        """
+        cap = capacity or self.kv_capacity
+        detected_type = ContextType(target_type) if target_type else self.detect_context_type(context)
+
+        # A. TRANSFORMER KV-CACHE
+        if detected_type == ContextType.KV_CACHE:
+            if isinstance(context, (tuple, list)):
+                compacted = []
+                for layer_kv in context:
+                    if isinstance(layer_kv, (tuple, list)) and len(layer_kv) == 2:
+                        k, v = layer_kv
+                        seq_len = k.shape[-2]
+                        if seq_len > cap:
+                            # Subspace active slice compaction
+                            compacted.append((k[..., -cap:, :], v[..., -cap:, :]))
+                        else:
+                            compacted.append((k, v))
+                    else:
+                        compacted.append(layer_kv)
+                return tuple(compacted)
+            return context
+
+        # B. SSM / MAMBA RECURRENT HIDDEN STATE
+        elif detected_type == ContextType.SSM_STATE:
+            if isinstance(context, torch.Tensor):
+                return self.tarski_compactor.compact(context)
+            elif isinstance(context, (tuple, list)):
+                return tuple(self.tarski_compactor.compact(s) if isinstance(s, torch.Tensor) else s for s in context)
+            elif isinstance(context, dict):
+                return {k: self.tarski_compactor.compact(v) if isinstance(v, torch.Tensor) else v for k, v in context.items()}
+            return context
+
+        # C. HYBRID (Both KV-cache and SSM-states present)
+        elif detected_type == ContextType.HYBRID and isinstance(context, dict):
+            res = {}
+            if "past_key_values" in context:
+                res["past_key_values"] = self.compact(context["past_key_values"], capacity=cap, target_type="kv_cache")
+            if "ssm_state" in context:
+                res["ssm_state"] = self.compact(context["ssm_state"], target_type="ssm_state")
+            return res
+
+        return context
